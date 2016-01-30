@@ -1,0 +1,6 @@
+1. install latest ansible (http://docs.ansible.com/ansible/intro_installation.html#latest-releases-via-apt-ubuntu)
+2. Install the following toolkit https://github.com/dellis23/ansible-toolkit
+3. Script for diff is in this repo
+
+to edit the file : ansible-vault edit thefile
+to run git diff on the files run: atk-git-diff
