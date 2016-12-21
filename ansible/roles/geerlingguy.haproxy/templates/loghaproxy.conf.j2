@@ -1,0 +1,8 @@
+$ModLoad imudp
+$UDPServerRun 514
+$UDPServerAddress 127.0.0.1
+
+local0.=info -/var/log/haproxy.log
+local0.notice -/var/log/haproxy-status.log
+& ~
+# & ~ means not to put what matched in the above line anywhere else for the rest of the rules
