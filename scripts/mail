@@ -1,0 +1,53 @@
+#!/bin/bash
+#email function
+function chirp() {
+  cat <<EOF | ${debug:-} /usr/sbin/sendmail -t
+To: monitor-apn@scribblelive.com
+Subject: $1
+
+$@
+EOF
+}
+
+instance_type="m3.xlarge"
+instance_count="2"
+
+today=$(date +%y%m%d)
+create="aws emr create-cluster --use-default-roles --name dailybkp"$today" --tags backup --ami-version 3.11.0 --auto-terminate --ec2-attributes KeyName=knife,AvailabilityZone=us-east-1b --enable-debugging --log-uri= --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType="$instance_type" InstanceGroupType=CORE,InstanceCount="$instance_count",InstanceType="$instance_type" --output json --applications Name=HBase --steps "
+
+for x in "$@"; do
+step="Type=CUSTOM_JAR,Name=Backup"$x",ActionOnFailure=CONTINUE,Jar=s3://us-east-1.elasticmapreduce/libs/script-runner/script-runner.jar,Args=["s3://bucket/backup.sh","$x"]"
+steps="$step $steps"
+done
+
+cut="| jq -r .ClusterId"
+#concatenate multiple commands
+cluster="$create $steps$cut"
+set -x
+clusterID="$(bash -c "$cluster")"
+echo $clusterID
+#do while timer check
+while true; do
+    cluster_state=$(aws emr describe-cluster --cluster-id "$clusterID" | jq -r .Cluster.Status.State)
+    cluster_code=$(aws emr describe-cluster --cluster-id "$clusterID" | jq -r .Cluster.Status.StateChangeReason.Code)
+    echo $cluster_state
+    echo $cluster_code
+    if [[ $cluster_state == TERMINATED* ]]; then
+      if [[ $cluster_code == ALL_STEPS_COMPLETED ]]; then
+	s3cmd mv s3://bucket/daily/ s3://bucket//daily/ --recursive
+	if [ $? -eq 0 ]
+        then
+        chirp "daily bkp ok; copy finished"
+        else
+        chirp "daily bkp nok; copy failed"
+        fi
+#        chirp "daily bkp ok"
+        break
+      else
+        chirp "daily bkp nok. cluster fail"
+        break
+      fi
+    else
+      sleep 50
+    fi
+done
