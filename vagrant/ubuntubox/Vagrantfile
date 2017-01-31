@@ -5,6 +5,12 @@
 
 Vagrant.configure("2") do |config|
 
+#fix stdin: is not a tty
+config.vm.provision "fix-no-tty", type: "shell" do |s|
+      s.privileged = false
+      s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+end
+
   # create mgmt node
   config.vm.define :mgmt do |mgmt_config|
       mgmt_config.vm.box = "ubuntu/trusty32"
@@ -13,6 +19,7 @@ Vagrant.configure("2") do |config|
       mgmt_config.vm.network "forwarded_port", guest: 80, host: "8085"
       mgmt_config.vm.provider "virtualbox" do |vb|
         vb.memory = "256"
+        vb.gui = true
       end
       mgmt_config.vm.provision :shell, path: "bootstrap.sh"
   end
