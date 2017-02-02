@@ -4,22 +4,14 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-
-#fix stdin: is not a tty
-config.vm.provision "fix-no-tty", type: "shell" do |s|
-      s.privileged = false
-      s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
-end
-
   # create mgmt node
   config.vm.define :mgmt do |mgmt_config|
-      mgmt_config.vm.box = "ubuntu/trusty32"
+      mgmt_config.vm.box = "ubuntu/trusty64"
       mgmt_config.vm.hostname = "ub14"
       mgmt_config.vm.network :private_network, ip: "10.0.15.10"
       mgmt_config.vm.network "forwarded_port", guest: 80, host: "8085"
       mgmt_config.vm.provider "virtualbox" do |vb|
         vb.memory = "256"
-        vb.gui = true
       end
       mgmt_config.vm.provision :shell, path: "bootstrap.sh"
   end
