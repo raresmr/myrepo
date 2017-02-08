@@ -20,7 +20,7 @@
 - name: Add SFH Site Config
   when: nginxinstalled|success
   register: sfhconfig
-  template: src=conf.j2 dest=/etc/nginx/sites-available/{{  domain   }}.conf owner=root group=root
+  template: src=vconf.j2 dest=/etc/nginx/sites-available/{{  domain   }}.conf owner=root group=root
 
 - name: Enable SFH Site Config
   when: sfhconfig|success

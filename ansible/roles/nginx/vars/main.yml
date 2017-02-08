@@ -1,4 +1,7 @@
 ---
 domain: test.comx
+
+ssl: 'on'
 ssl_key: /etc/ssl_key
 ssl_crt: /etc/ssl_crt
+

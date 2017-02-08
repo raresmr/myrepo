@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: ltest
   become: true
   roles: 
      - haproxy
