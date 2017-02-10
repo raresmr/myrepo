@@ -1,0 +1,5 @@
+---
+- hosts: ltest
+  become: true
+  roles: 
+     - varnish
