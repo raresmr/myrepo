@@ -1,0 +1,9 @@
+[prod]
+1.2.3.4
+
+[dev]
+5.5.5.5
+
+[api:children]
+dev
+prod
